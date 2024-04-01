@@ -24,7 +24,7 @@ const Logger = require('./documents/event_demo.js')
 const server = http.createServer((req, res) => {
     // console.log(req.url);
 
-    // Identificar oi tipo de documento a ser lido na localhost do navegador
+    // Identificar o tipo de documento a ser lido na localhost do navegador
     res.writeHead(200, {'contet-type': 'text/html'})
 
     // Configurar endereço no servidor
@@ -38,7 +38,7 @@ const server = http.createServer((req, res) => {
 // FAZER A LEITURA DE DOCUMENTO NO SERVIDOR
 const server = http.createServer((req, res) => {
 
-    // PAGINA HOME
+   /* // PAGINA HOME
     if (req.url === '/') {
         fs.readFile(path.join(__dirname, 'public', 'index.html'), (err, content) => {
             if (err) throw err;
@@ -66,7 +66,44 @@ const server = http.createServer((req, res) => {
         res.writeHead(200, {'content-type': 'application/json'});
         res.end(JSON.stringify(users));
     }
-})
+     */
+
+
+    // CRIAR UM CAMINHO PARA LOCALISAR A URL DA PAGINA
+    let filePath = path.join(__dirname, 'public', req.url === '/' ? 'index.html' : req.url);
+    // BUSCAR O ARQUIVO PELA EXTENÇÃO DO DOCUEMNTO
+    let extname = path.extname(filePath);
+    // conteudo inicial
+    let contentType = 'text/html';
+
+    switch(extname) {
+        case '.js': contentType = 'text/javascript'; break;
+        case '.css': contentType = 'text/css'; break;
+        case '.json': contentType = 'aplication/json'; break;
+        case '.png': contentType = 'image/png'; break;
+        case '.jpg': contentType = 'image/jpg'; break;
+    };
+
+    // APRESENTAR O CONTEUDO DA PAGINA
+    fs.readFile(filePath, (err, content) =>{
+        if(err) {
+            if(err.code == 'ENONET') {
+                fs.readFile(path.join(__dirname, 'public'), (err, content) => {
+                    res.writeHead(200, {'content-type': 'text/html'});
+                    res.end(content, 'utf8');
+                });
+            } else {
+                res.writeHead(500);
+                res.end(`server code: ${err.code}`)
+            }
+        } else {
+            res.writeHead(200, {'content-type': contentType});
+            res.end(content, 'utf8')
+        }
+    })
+
+});
+
 
 
 
@@ -77,7 +114,7 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`O servidor esta na porta: ${PORT}`));
 
 
-
+/*
 
 // Acessar dados importados de um arquivo externo
 const person1 = new Person('Magi One', 31);
@@ -90,3 +127,4 @@ person1.lerData();
     logger.log('Angola Linda')
     logger.log('Angola nova')
 
+*/
